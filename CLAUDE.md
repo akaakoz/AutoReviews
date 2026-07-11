@@ -14,16 +14,16 @@ SwiftプロジェクトのPR自動レビューシステム。PRが作成・更�
 ```
 .github/workflows/pr-review.yml   # ワークフロー定義
 scripts/review_pr.py              # レビュースクリプト
-prompts/swift_coding_rules.md     # Swiftルール + Claudeへの指示
+.claude/rules/swift-rules.md      # Swiftコーディングルール
 ```
 
 ## レビュー内容
 
 - **一般的なコード品質**: ロジックエラー、パフォーマンス、セキュリティ
-- **Swiftコーディングルール**: 命名、Optional処理、アクセス制御、型推論、クロージャ、エラーハンドリング、Swift Concurrency
+- **Swiftコーディングルール**: `.claude/rules/` 配下の各ファイルで定義
 
 ## カスタマイズ
 
-- `prompts/swift_coding_rules.md` を編集してルールを追加・変更
-- `scripts/review_pr.py` の `MODEL` 変数でモデルを切り替え（デフォルト: `claude-opus-4-8`）
-- `MAX_DIFF_CHARS` でdiffの最大サイズを調整（デフォルト: 30,000文字）
+- ルールの追加・変更: `.claude/rules/swift-rules.md` を編集するだけで自動的にレビューに反映される
+- モデルの変更: `scripts/review_pr.py` の `MODEL` 変数を編集
+- diffサイズ上限の変更: `scripts/review_pr.py` の `MAX_DIFF_CHARS` を編集
