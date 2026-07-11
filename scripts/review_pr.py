@@ -5,14 +5,78 @@ import requests
 import anthropic
 
 DIFF_PATH = "/tmp/pr_diff.patch"
-RULES_PATH = os.path.join(os.path.dirname(__file__), "..", "prompts", "swift_coding_rules.md")
+RULES_DIR = os.path.join(os.path.dirname(__file__), "..", ".claude", "rules")
 MAX_DIFF_CHARS = 30_000
 MODEL = "claude-opus-4-8"
 
+REVIEW_INTRO = """\
+You are an expert Swift iOS developer performing a thorough code review. \
+Review the PR diff provided by the user, checking for both general code quality issues \
+AND compliance with the Swift coding rules below.
+
+## General Code Quality Checklist
+- Logic errors and correctness issues
+- Performance problems (unnecessary computation, retain cycles, blocking main thread)
+- Security vulnerabilities (unsafe data handling, missing input validation)
+- Missing error propagation or silent failures
+- Unnecessary code duplication
+
+## Swift Coding Rules
+"""
+
+REVIEW_FORMAT = f"""
+## Output Format
+
+Structure your review exactly as follows (omit any section that has no findings):
+
+## 🤖 Claude Code Review
+
+### 📋 Summary
+(1–2 sentence overall assessment of the PR quality and key themes)
+
+### 🔴 Critical（必須修正）
+- `FileName.swift`: description of issue and how to fix it
+
+### 🟡 Major（強く推奨）
+- `FileName.swift`: description of issue and recommendation
+
+### 🔵 Minor / Style（Swiftルール違反含む）
+- `FileName.swift`: rule violated and correction
+
+### ✅ Good Points
+- What was done well in this PR
+
+---
+*Reviewed by Claude {MODEL} · autoReviews PR Review Bot*
+"""
+
+
+def _read_file(path: str) -> str:
+    with open(path, "r", encoding="utf-8") as fp:
+        return fp.read()
+
+
+def _strip_frontmatter(text: str) -> str:
+    if not text.startswith("---"):
+        return text
+    lines = text.splitlines(keepends=True)
+    for i, line in enumerate(lines[1:], start=1):
+        if line.rstrip("\n") == "---":
+            return "".join(lines[i + 1:]).lstrip("\n")
+    return text
+
 
 def load_system_prompt() -> str:
-    with open(RULES_PATH, "r") as f:
-        return f.read()
+    if not os.path.isdir(RULES_DIR):
+        raise FileNotFoundError(f"Rules directory not found: {RULES_DIR}")
+    rules_files = sorted(f for f in os.listdir(RULES_DIR) if f.endswith(".md"))
+    if not rules_files:
+        raise RuntimeError(f"No .md rule files found in {RULES_DIR}")
+    rules_body = "\n\n".join(
+        _strip_frontmatter(_read_file(os.path.join(RULES_DIR, f)))
+        for f in rules_files
+    )
+    return REVIEW_INTRO + rules_body + REVIEW_FORMAT
 
 
 def load_diff() -> str:
