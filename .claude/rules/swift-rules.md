@@ -37,6 +37,7 @@ extension ProfileViewController: UITableViewDataSource { ... }
 ## 5. 型推論
 - ローカル変数は型推論に任せ、冗長な型注釈を避ける
 - 空配列・空辞書は型を明示する: `let names: [String] = []` ✅
+- 公開APIのプロパティ・戻り値の型は明示する（可読性とコンパイル速度のため）
 
 ## 6. self の省略とクロージャの循環参照
 - メソッド内では `self.` を省略する（コンパイラが要求する場面のみ付ける）
@@ -50,7 +51,7 @@ extension ProfileViewController: UITableViewDataSource { ... }
 - `Result<T, Error>` より `async/await + throws` を新規コードでは使う
 
 ## 8. 並行処理 (Swift Concurrency)
-- 新規コードは `async/await` + `Actor` を基本にする（RxSwift は既存コードのみ）
+- 新規コードは `async/await` + `Actor` を基本にする（コールバックや RxSwift は既存コードのみ）
 - UI 更新スレッドは `@MainActor` で型レベルに保証する（`DispatchQueue.main` は使わない）
 - 長い処理では `Task.checkCancellation()` でキャンセルに対応する
 - `Task { @MainActor in ... }` を回避策として使わず、関数自体に正しい Actor を付ける

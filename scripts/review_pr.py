@@ -24,7 +24,7 @@ AND compliance with the Swift coding rules below.
 ## Swift Coding Rules
 """
 
-REVIEW_FORMAT = """
+REVIEW_FORMAT = f"""
 ## Output Format
 
 Structure your review exactly as follows (omit any section that has no findings):
@@ -47,24 +47,33 @@ Structure your review exactly as follows (omit any section that has no findings)
 - What was done well in this PR
 
 ---
-*Reviewed by Claude claude-opus-4-8 · autoReviews PR Review Bot*
+*Reviewed by Claude {MODEL} · autoReviews PR Review Bot*
 """
 
 
+def _read_file(path: str) -> str:
+    with open(path, "r", encoding="utf-8") as fp:
+        return fp.read()
+
+
 def _strip_frontmatter(text: str) -> str:
-    if text.startswith("---"):
-        end = text.find("---", 3)
-        if end != -1:
-            return text[end + 3:].lstrip("\n")
+    if not text.startswith("---"):
+        return text
+    lines = text.splitlines(keepends=True)
+    for i, line in enumerate(lines[1:], start=1):
+        if line.rstrip("\n") == "---":
+            return "".join(lines[i + 1:]).lstrip("\n")
     return text
 
 
 def load_system_prompt() -> str:
-    rules_files = sorted(
-        f for f in os.listdir(RULES_DIR) if f.endswith(".md")
-    )
+    if not os.path.isdir(RULES_DIR):
+        raise FileNotFoundError(f"Rules directory not found: {RULES_DIR}")
+    rules_files = sorted(f for f in os.listdir(RULES_DIR) if f.endswith(".md"))
+    if not rules_files:
+        raise RuntimeError(f"No .md rule files found in {RULES_DIR}")
     rules_body = "\n\n".join(
-        _strip_frontmatter(open(os.path.join(RULES_DIR, f)).read())
+        _strip_frontmatter(_read_file(os.path.join(RULES_DIR, f)))
         for f in rules_files
     )
     return REVIEW_INTRO + rules_body + REVIEW_FORMAT
