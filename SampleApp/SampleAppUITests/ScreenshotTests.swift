@@ -25,6 +25,15 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(app.navigationBars["設定"].waitForExistence(timeout: 10))
         attachScreenshot(named: "Settings")
     }
+
+    @MainActor
+    func testProfile() {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["プロフィール"].tap()
+        XCTAssertTrue(app.navigationBars["プロフィール"].waitForExistence(timeout: 10))
+        attachScreenshot(named: "Profile")
+    }
 }
 
 // MARK: - Private
