@@ -1,0 +1,7 @@
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "test_identifier": "MyAppUITests/ScreenshotTests",
+  "test_paths": ["MyAppUITests/ScreenshotTests.swift"],
+  "destination": "platform=iOS Simulator,name=iPhone 16"
+}
