@@ -1,0 +1,7 @@
+{
+  "project": "SampleApp/SampleApp.xcodeproj",
+  "scheme": "SampleApp",
+  "test_identifier": "SampleAppUITests/ScreenshotTests",
+  "test_paths": ["SampleApp/SampleAppUITests/ScreenshotTests.swift"],
+  "destination": "platform=iOS Simulator,name=iPhone 16,OS=18.2"
+}
