@@ -106,7 +106,7 @@ def _prepare_base_worktree(config: dict, base: str, worktree_dir: str) -> None:
 def _upload(pr_number: int, before_dir: str, after_dir: str, work_dir: str) -> str:
     """画像を専用ブランチにpushし、そのコミットSHAを返す。"""
     worktree_dir = os.path.join(work_dir, "screenshots-branch")
-    branch_exists = _run(["git", "ls-remote", "--heads", "origin", SCREENSHOTS_BRANCH]) != ""
+    branch_exists = _run(["git", "ls-remote", "--heads", "origin", f"refs/heads/{SCREENSHOTS_BRANCH}"]) != ""
     if branch_exists:
         _run(["git", "fetch", "origin", SCREENSHOTS_BRANCH])
         _run(["git", "worktree", "add", "--detach", worktree_dir, f"origin/{SCREENSHOTS_BRANCH}"])
