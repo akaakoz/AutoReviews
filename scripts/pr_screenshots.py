@@ -95,11 +95,12 @@ def _capture(config: dict, source_dir: str, work_dir: str, output_dir: str) -> N
 
 
 def _prepare_base_worktree(config: dict, base: str, worktree_dir: str) -> None:
+    head_sha = _run(["git", "rev-parse", "HEAD"])
     _run(["git", "fetch", "origin", base])
     _run(["git", "worktree", "add", "--detach", worktree_dir, f"origin/{base}"])
     # スクリーンショットテストがこのPRで追加・変更された場合に備え、テストコードはHEADのものを使う
     for path in config.get("test_paths", []):
-        _run(["git", "checkout", "HEAD", "--", path], cwd=worktree_dir, check=False)
+        _run(["git", "checkout", head_sha, "--", path], cwd=worktree_dir)
 
 
 def _upload(pr_number: int, before_dir: str, after_dir: str, work_dir: str) -> str:
